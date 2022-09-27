@@ -1,0 +1,78 @@
+include:
+  - template: Security/SAST.gitlab-ci.yml
+  - project: 'templates/ci'
+    file: 'DockerInDockerTemplate.yml'
+
+stages:
+  - backend-artifact
+  - test
+  - build
+  - release
+
+
+variables: 
+  VERSION: 1.0.${CI_PIPELINE_ID}
+  SAST_EXCLUDED_ANALYZERS: "nodejs-scan-sast,gosec-sast"
+
+
+make-artifacts:
+  stage: backend-artifact
+  image: golang:1.18.5-alpine3.15
+  script:
+    - cd backend
+    - apk add gcc
+    - apk add libc-dev
+    - go test -v ./.../
+    - cd cmd/api 
+    - go build -o momo-store-backend-${VERSION}
+    - mkdir ${CI_PROJECT_DIR}/backend/momo-store-${VERSION}
+    - cp ${CI_PROJECT_DIR}/backend/cmd/api/momo-store-backend-${VERSION} ${CI_PROJECT_DIR}/backend/momo-store-${VERSION}
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/backend/momo-store-${VERSION}/momo-store-backend-${VERSION} #save built backend as artifact
+
+sonarqube-backend-sast: #SonarQube backend SAST test
+  stage: test
+  image: sonarsource/sonar-scanner-cli
+  script:
+    - cd backend
+    - >
+      sonar-scanner -Dsonar.qualitygate.wait=true
+      -Dsonar.projectKey=${SONAR_PROJECT_BACKEND_KEY}
+      -Dsonar.host.url=${SONARQUBE_URL}
+      -Dsonar.login=${SONAR_LOGIN}
+      -Dsonar.projectName=04_IVANDVOROV_BACKEND_MOMO
+  dependencies:
+    - make-artifacts 
+
+build-backend:
+  stage: build
+  image: docker:20.10.12-dind-rootless
+  before_script:
+    - until docker info; do sleep 1; done
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - cd backend
+    - >
+      docker build
+      --build-arg VERSION=$VERSION
+      --tag $CI_REGISTRY_IMAGE/momo-backend:$CI_COMMIT_SHA
+      .
+    - docker push $CI_REGISTRY_IMAGE/momo-backend:$CI_COMMIT_SHA
+  dependencies:
+    - make-artifacts
+
+upload-backend-latest:
+  variables:
+    GIT_STRATEGY: none
+  image: docker:20.10.12-dind-rootless
+  stage: release
+  before_script:
+    - until docker info; do sleep 1; done
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker pull $CI_REGISTRY_IMAGE/momo-backend:$CI_COMMIT_SHA
+    - docker tag $CI_REGISTRY_IMAGE/momo-backend:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE/momo-backend:latest
+    - docker push $CI_REGISTRY_IMAGE/momo-backend:latest
+  dependencies:
+    - make-artifacts

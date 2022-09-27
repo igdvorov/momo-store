@@ -1,0 +1,43 @@
+variables: 
+  VERSION: 0.15.${CI_PIPELINE_ID}
+
+stages:
+  - module-piplines
+  - deploy
+
+frontend:
+  stage: module-piplines
+  trigger:
+    include:
+      - "/frontend/.gitlab-ci.yml"
+    strategy: depend
+  only:
+    changes:
+      - frontend/**/*
+
+backend:
+  stage: module-piplines
+  trigger:
+    include:
+      - "/backend/.gitlab-ci.yml"
+    strategy: depend
+  only:
+    changes:
+      - backend/**/*
+
+k8s-deploy:
+  stage: deploy
+  image: alpine/k8s:1.22.10
+  when: manual
+  script:
+    - helm package momo-store-chart --version $VERSION
+    - curl -v -u $NEXUS_USER:$NEXUS_PASS $NEXUS_HELM_REPO --upload-file momo-store-$VERSION.tgz
+    - helm repo add nexus $NEXUS_HELM_REPO --username $NEXUS_USER --password $NEXUS_PASS
+    - helm repo update
+    - mkdir -p ~/.kube/
+    - echo "$K8S_CONFIG" >> ~/.kube/config
+    - |
+      helm upgrade --install momo-store \
+      --atomic --timeout 1m \
+      nexus/momo-store
+    - rm -rf ~/.kube

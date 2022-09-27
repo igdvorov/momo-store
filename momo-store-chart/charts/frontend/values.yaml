@@ -1,0 +1,43 @@
+replicaCount: 1
+
+imagePullSecrets: 
+  - name: frontend-docker-config-secret
+
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: gitlab.praktikum-services.ru:5050/yuki.isoya23/momo-store/momo-frontend
+  pullPolicy: Always
+  tag: "latest"
+  containerPort: 80
+
+resources: 
+  limits:
+    cpu: "0.2"
+    memory: 256Mi
+  requests:
+    cpu: "0.1"
+    memory: 128Mi
+
+service:
+  type: ClusterIP
+  protocol: TCP
+  port: 80
+
+ingress:
+  enabled: true
+  className: "nginx"
+  service:
+    name: momo-store-frontend-service
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt"
+  hosts:
+    - host: mymomostore.space
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - hosts:
+      - mymomostore.space
+      secretName: letsencrypt

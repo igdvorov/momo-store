@@ -1,0 +1,27 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "frontend.fullname" . }}-nginx-conf
+data:
+  nginx.conf: |
+    upstream backend-service {
+      server momo-store-backend-service:8081;
+    }
+    server {
+      listen 80;
+      location / {
+        root   /usr/share/nginx/html;
+        index  index.html;
+        try_files $uri $uri/ /index.html;
+      }
+      location /products {
+          proxy_pass http://backend-service;
+      }
+      location /categories {
+          proxy_pass http://backend-service;
+      }
+      location /auth {
+          proxy_pass http://backend-service;
+      }
+    }

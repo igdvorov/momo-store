@@ -1,0 +1,70 @@
+# ---
+# groups:
+#   - name: Sausage store rules
+#     rules:
+#     - alert: HTTP Requests with Status 404
+#       expr: rate(http_server_requests_seconds_count{status="500"}[5m]) > 0
+#       for: 10s
+#       labels:
+#         severity: critical
+#         project: "sausage_store_dvorov"
+#         component: "backend"
+#       annotations:
+#         summary: HTTP requests with 500 status on (instance {{ $labels.instance }})"
+#         description: "HTTP request with 500 status \n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+#     - alert: Successfull POST Request(api/orders)
+#       expr: histogram_quantile(0.95, rate(http_server_requests_seconds_bucket{outcome="SUCCESS",uri="/api/orders"}[5m])) > 0.100
+#       for: 10s
+#       labels:
+#         severity: critical
+#         project: "sausage_store_dvorov"
+#         component: "backend"
+#       annotations:
+#         summary: Successfull Post requests api/orders (instance {{ $labels.instance }})
+#         description: "Successfull Post requests api/orders\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+
+#     - alert: Request with any Error code (actuator/prometheus)
+#       expr: rate(http_server_requests_seconds_count{status!~"2..",uri="/actuator/prometheus"}[2m]) > 0
+#       for: 10s
+#       labels:
+#         severity: critical
+#         project: "sausage_store_dvorov"
+#         component: "backend"
+#       annotations:
+#         summary: Any Error code on /actuator/prometheus (instance {{ $labels.instance }})
+#         description: "Any Error code on /actuator/prometheus\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+#     - alert: Instance Backend down
+#       expr: absent(up{app="backend"}) 
+#       for: 0m
+#       labels:
+#         severity: critical
+#         project: "sausage_store"
+#         component: "Backend"
+#       annotations:
+#         summary: Instance Backend down {{ $labels.instance }}
+#         description: "Instance Backend down \n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+#     - alert: Instance Backend-report down
+#       expr: absent(up{app="backend-report"})
+#       for: 0m
+#       labels:
+#         severity: critical
+#         project: "sausage_store"
+#         component: "Backend-report"
+#       annotations:
+#         summary: Instance Backend-report is down /actuator/prometheus (instance {{ $labels.instance }})
+#         description: "Instance Backend-report is down /actuator/prometheus\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      
+#     - alert: Instance Frontend down
+#       expr: absent(up{app="frontend"})
+#       for: 0m
+#       labels:
+#         severity: critical
+#         project: "sausage_store"
+#         component: "Frontend"
+#       annotations:
+#         summary: Instance Frontend is down /actuator/prometheus (instance {{ $labels.instance }})
+#         description: "Instance Frontend is down /actuator/prometheus\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
