@@ -55,20 +55,22 @@ password: viewer
 
 ##### Для приложения был куплен домен mymomostore.space. В YCloud были настроенны Cloud DNS
 
-<img width="400" alt="dashboard" src="https://storage.yandexcloud.net/dvorov-ivan/domain.png">
-
 # В качестве мониторинга:
 ##### Grafana - Дашборды с метриками
 
-<img width="900" alt="dashboard" src="https://storage.yandexcloud.net/dvorov-ivan/momo-dashboard.png">
+<img width="900" alt="dashboard" src="https://res.cloudinary.com/dakatw4js/image/upload/v1669012585/momo-store-img/momo-dashboard_rjtnig.png">
 
 ##### Loki Promtail для просмотра и хранения логов
 
-<img width="900" alt="logs" src="https://storage.yandexcloud.net/dvorov-ivan/momo-logs.png">
+<img width="900" alt="logs" src="https://res.cloudinary.com/dakatw4js/image/upload/v1669012592/momo-store-img/momo-logs_vap01x.png">
 
 # Сборка образов и артефактов происходит в module-pipline, реализован ручной деплой по "кнопке" в GitLab.
 
-<img width="700" alt="deploy" src="https://storage.yandexcloud.net/dvorov-ivan/deploy.png">
+<img width="700" alt="deploy" src="https://res.cloudinary.com/dakatw4js/image/upload/v1669012579/momo-store-img/module-deploy-downstream_cwzf35.png">
+
+<img width="700" alt="deploy-frontend" src="https://res.cloudinary.com/dakatw4js/image/upload/v1669012579/momo-store-img/frontend_rhfglk.png">
+
+<img width="700" alt="deploy-backend" src="https://res.cloudinary.com/dakatw4js/image/upload/v1669012579/momo-store-img/backend_l9yezd.png">
 
 # Helm чарты приложения хранятся в репозитории Nexus
 https://nexus.praktikum-services.ru/repository/momo-store-helm-dvorov-ivan-04
