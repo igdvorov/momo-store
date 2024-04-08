@@ -78,4 +78,4 @@ https://nexus.praktikum-services.ru/repository/momo-store-helm-dvorov-ivan-04
 # Версия приложения и Helm чартов задана в формате 
 ```bash
 VERSION: 1.0.${CI_PIPELINE_ID}:
-```
+``` 
